@@ -39,7 +39,7 @@ export default function SignupPage() {
         <CardHeader>
           <CardTitle>Sign Up</CardTitle>
           <CardDescription>
-            Welcome to the Don't Worry Board. Join us to share your thoughts.
+            Welcome to the Don&apos;t Worry Board. Join us to share your thoughts.
           </CardDescription>
         </CardHeader>
         <form onSubmit={handleSubmit}>

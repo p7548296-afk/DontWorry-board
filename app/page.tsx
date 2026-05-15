@@ -37,7 +37,7 @@ export default async function Home() {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">
-                Don't Worry Board
+                Don&apos;t Worry Board
               </h1>
               <p className="mt-2 text-zinc-600 dark:text-zinc-400">
                 Share your worries and get advice from others.

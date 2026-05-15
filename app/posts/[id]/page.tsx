@@ -8,6 +8,7 @@ import { CommentList } from "@/components/comment-list";
 import { CommentForm } from "@/components/comment-form";
 import { Comment } from "@/types/comment";
 import { PostOwnerEditor } from "@/components/post-owner-editor";
+import { Lightbox } from "@/components/lightbox";
 
 export default async function PostDetailPage({
   params,
@@ -75,6 +76,7 @@ export default async function PostDetailPage({
               initialContent={typedPost.content}
               authorNickname={authorNickname}
               createdAt={typedPost.created_at}
+              imageUrls={typedPost.image_urls || []}
             />
           ) : (
             <>
@@ -97,11 +99,27 @@ export default async function PostDetailPage({
                 </div>
               </header>
 
-              <div className="prose prose-zinc dark:prose-invert max-w-none">
+              <div className="prose prose-zinc dark:prose-invert max-w-none mb-8">
                 <p className="whitespace-pre-wrap text-zinc-700 dark:text-zinc-300 leading-relaxed text-lg">
                   {typedPost.content}
                 </p>
               </div>
+
+              {typedPost.image_urls && typedPost.image_urls.length > 0 && (
+                <div className="grid gap-6">
+                  {typedPost.image_urls.map((url, index) => (
+                    <Lightbox key={index} src={url} alt={`${typedPost.title} - ${index + 1}`}>
+                      <div className="rounded-xl overflow-hidden border border-zinc-200 dark:border-zinc-800 shadow-sm bg-white dark:bg-zinc-950 cursor-zoom-in group transition-all hover:ring-2 hover:ring-primary/20">
+                        <img
+                          src={url}
+                          alt={`${typedPost.title} - ${index + 1}`}
+                          className="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+                        />
+                      </div>
+                    </Lightbox>
+                  ))}
+                </div>
+              )}
             </>
           )}
         </article>
