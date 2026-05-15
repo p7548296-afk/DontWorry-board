@@ -7,6 +7,7 @@ import { Post } from "@/types/post";
 import { CommentList } from "@/components/comment-list";
 import { CommentForm } from "@/components/comment-form";
 import { Comment } from "@/types/comment";
+import { PostOwnerEditor } from "@/components/post-owner-editor";
 
 export default async function PostDetailPage({
   params,
@@ -53,6 +54,8 @@ export default async function PostDetailPage({
   } = await supabase.auth.getUser();
 
   const typedPost = post as unknown as Post;
+  const isPostOwner = user?.id === typedPost.author_id;
+  const authorNickname = typedPost.profiles?.nickname || "Anonymous";
 
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-black py-12 px-4 sm:px-6 lg:px-8">
@@ -65,30 +68,42 @@ export default async function PostDetailPage({
         </Button>
 
         <article className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-8 shadow-sm mb-8">
-          <header className="mb-8 border-b border-zinc-100 dark:border-zinc-800 pb-8">
-            <h1 className="text-4xl font-bold text-zinc-900 dark:text-zinc-50 mb-4 tracking-tight">
-              {typedPost.title}
-            </h1>
-            <div className="flex items-center text-zinc-500 dark:text-zinc-400 text-sm">
-              <span className="font-medium text-zinc-900 dark:text-zinc-50">
-                {typedPost.profiles?.nickname || "Anonymous"}
-              </span>
-              <span className="mx-2 text-zinc-300 dark:text-zinc-700">•</span>
-              <time dateTime={typedPost.created_at}>
-                {new Date(typedPost.created_at).toLocaleDateString("en-US", {
-                  year: "numeric",
-                  month: "long",
-                  day: "numeric",
-                })}
-              </time>
-            </div>
-          </header>
+          {isPostOwner ? (
+            <PostOwnerEditor
+              postId={typedPost.id}
+              initialTitle={typedPost.title}
+              initialContent={typedPost.content}
+              authorNickname={authorNickname}
+              createdAt={typedPost.created_at}
+            />
+          ) : (
+            <>
+              <header className="mb-8 border-b border-zinc-100 dark:border-zinc-800 pb-8">
+                <h1 className="text-4xl font-bold text-zinc-900 dark:text-zinc-50 mb-4 tracking-tight">
+                  {typedPost.title}
+                </h1>
+                <div className="flex items-center text-zinc-500 dark:text-zinc-400 text-sm">
+                  <span className="font-medium text-zinc-900 dark:text-zinc-50">
+                    {authorNickname}
+                  </span>
+                  <span className="mx-2 text-zinc-300 dark:text-zinc-700">•</span>
+                  <time dateTime={typedPost.created_at}>
+                    {new Date(typedPost.created_at).toLocaleDateString("en-US", {
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                    })}
+                  </time>
+                </div>
+              </header>
 
-          <div className="prose prose-zinc dark:prose-invert max-w-none">
-            <p className="whitespace-pre-wrap text-zinc-700 dark:text-zinc-300 leading-relaxed text-lg">
-              {typedPost.content}
-            </p>
-          </div>
+              <div className="prose prose-zinc dark:prose-invert max-w-none">
+                <p className="whitespace-pre-wrap text-zinc-700 dark:text-zinc-300 leading-relaxed text-lg">
+                  {typedPost.content}
+                </p>
+              </div>
+            </>
+          )}
         </article>
 
         <section className="space-y-8">
@@ -112,7 +127,7 @@ export default async function PostDetailPage({
               )}
             </div>
 
-            <CommentList comments={comments} />
+            <CommentList comments={comments} currentUserId={user?.id} />
           </div>
         </section>
       </div>
