@@ -1,17 +1,19 @@
 import { logout } from "@/app/auth/actions";
 import { PostCard } from "@/components/post-card";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { createClient } from "@/lib/supabase/server";
 import { Post } from "@/types/post";
 import Link from "next/link";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Search } from "lucide-react";
+import { redirect } from "next/navigation";
 
 export default async function Home({
   searchParams,
 }: {
-  searchParams: Promise<{ page?: string }>;
+  searchParams: Promise<{ page?: string; search?: string }>;
 }) {
-  const { page } = await searchParams;
+  const { page, search } = await searchParams;
   const supabase = await createClient();
 
   const {
@@ -23,11 +25,7 @@ export default async function Home({
   const from = (currentPage - 1) * pageSize;
   const to = from + pageSize - 1;
 
-  const {
-    data: posts,
-    error,
-    count,
-  } = await supabase
+  let query = supabase
     .from("posts")
     .select(
       `
@@ -37,9 +35,17 @@ export default async function Home({
       )
     `,
       { count: "exact" },
-    )
-    .order("created_at", { ascending: false })
-    .range(from, to);
+    );
+
+  if (search) {
+    query = query.or(`title.ilike.%${search}%,content.ilike.%${search}%`);
+  }
+
+  const {
+    data: posts,
+    error,
+    count,
+  } = await query.order("created_at", { ascending: false }).range(from, to);
 
   const typedPosts = posts as unknown as Post[] | null;
   const totalCount = count || 0;
@@ -47,6 +53,16 @@ export default async function Home({
 
   if (error) {
     console.error("Error fetching posts:", error);
+  }
+
+  async function handleSearch(formData: FormData) {
+    "use server";
+    const searchTerm = formData.get("search") as string;
+    if (searchTerm) {
+      redirect(`/?search=${encodeURIComponent(searchTerm)}`);
+    } else {
+      redirect("/");
+    }
   }
 
   return (
@@ -82,6 +98,17 @@ export default async function Home({
             </div>
           </div>
 
+          {/* Search Bar */}
+          <form action={handleSearch} className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400" />
+            <Input
+              name="search"
+              placeholder="제목이나 내용으로 검색해보세요"
+              defaultValue={search}
+              className="pl-10 bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800"
+            />
+          </form>
+
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-1">
             {typedPosts && typedPosts.length > 0 ? (
               <>
@@ -101,7 +128,7 @@ export default async function Home({
                       disabled={currentPage <= 1}
                       className={currentPage <= 1 ? "pointer-events-none opacity-50" : ""}
                     >
-                      <Link href={`/?page=${currentPage - 1}`}>
+                      <Link href={`/?page=${currentPage - 1}${search ? `&search=${search}` : ""}`}>
                         <ChevronLeft className="h-4 w-4" />
                       </Link>
                     </Button>
@@ -121,7 +148,7 @@ export default async function Home({
                           asChild
                           className="w-9 h-9"
                         >
-                          <Link href={`/?page=${p}`}>{p}</Link>
+                          <Link href={`/?page=${p}${search ? `&search=${search}` : ""}`}>{p}</Link>
                         </Button>
                       ));
                     })()}
@@ -133,7 +160,7 @@ export default async function Home({
                       disabled={currentPage >= totalPages}
                       className={currentPage >= totalPages ? "pointer-events-none opacity-50" : ""}
                     >
-                      <Link href={`/?page=${currentPage + 1}`}>
+                      <Link href={`/?page=${currentPage + 1}${search ? `&search=${search}` : ""}`}>
                         <ChevronRight className="h-4 w-4" />
                       </Link>
                     </Button>
@@ -143,11 +170,18 @@ export default async function Home({
             ) : (
               <div className="flex flex-col items-center justify-center py-24 text-center border-2 border-dashed rounded-xl border-zinc-200 dark:border-zinc-800">
                 <p className="text-zinc-500 dark:text-zinc-400">
-                  No posts yet.
+                  {search ? "검색 결과가 없습니다." : "No posts yet."}
                 </p>
-                <Button variant="link" asChild className="mt-2">
-                  <Link href="/posts/new">Be the first to share a worry!</Link>
-                </Button>
+                {!search && (
+                  <Button variant="link" asChild className="mt-2">
+                    <Link href="/posts/new">Be the first to share a worry!</Link>
+                  </Button>
+                )}
+                {search && (
+                  <Button variant="link" asChild className="mt-2">
+                    <Link href="/">전체 목록 보기</Link>
+                  </Button>
+                )}
               </div>
             )}
           </div>
