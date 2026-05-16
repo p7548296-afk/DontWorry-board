@@ -2,7 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Post } from "@/types/post";
 import { CommentList } from "@/components/comment-list";
 import { CommentForm } from "@/components/comment-form";
@@ -12,10 +12,13 @@ import { Lightbox } from "@/components/lightbox";
 
 export default async function PostDetailPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ cpage?: string }>;
 }) {
   const { id } = await params;
+  const { cpage } = await searchParams;
   const supabase = await createClient();
 
   // Fetch a single post by ID including nickname from profiles
@@ -35,19 +38,27 @@ export default async function PostDetailPage({
     notFound();
   }
 
-  // Fetch comments for this post
-  const { data: commentsData } = await supabase
+  const currentCommentPage = Math.max(1, parseInt(cpage || "1", 10) || 1);
+  const pageSize = 6;
+  const from = (currentCommentPage - 1) * pageSize;
+  const to = from + pageSize - 1;
+
+  // Fetch comments for this post with pagination
+  const { data: commentsData, count: commentsCount } = await supabase
     .from("comments")
     .select(`
       *,
       profiles (
         nickname
       )
-    `)
+    `, { count: "exact" })
     .eq("post_id", id)
-    .order("created_at", { ascending: true });
+    .order("created_at", { ascending: true })
+    .range(from, to);
 
   const comments = (commentsData || []) as unknown as Comment[];
+  const totalCommentsCount = commentsCount || 0;
+  const totalCommentPages = Math.ceil(totalCommentsCount / pageSize);
 
   // Check authentication status
   const {
@@ -127,7 +138,7 @@ export default async function PostDetailPage({
         <section className="space-y-8">
           <div className="border-t border-zinc-200 dark:border-zinc-800 pt-8">
             <h2 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50 mb-8">
-              댓글 {comments.length}
+              댓글 {totalCommentsCount}
             </h2>
 
             <div className="mb-12">
@@ -146,6 +157,55 @@ export default async function PostDetailPage({
             </div>
 
             <CommentList comments={comments} currentUserId={user?.id} />
+
+            {/* Comment Pagination Controls */}
+            {totalCommentPages > 1 && (
+              <div className="flex items-center justify-center gap-2 mt-8 pt-8 border-t border-zinc-200 dark:border-zinc-800">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  asChild
+                  disabled={currentCommentPage <= 1}
+                  className={currentCommentPage <= 1 ? "pointer-events-none opacity-50" : ""}
+                >
+                  <Link href={`/posts/${id}?cpage=${currentCommentPage - 1}`}>
+                    <ChevronLeft className="h-4 w-4" />
+                  </Link>
+                </Button>
+
+                {(() => {
+                  const startPage = Math.floor((currentCommentPage - 1) / 5) * 5 + 1;
+                  const endPage = Math.min(startPage + 4, totalCommentPages);
+                  const pages = [];
+                  for (let i = startPage; i <= endPage; i++) {
+                    pages.push(i);
+                  }
+                  return pages.map((p) => (
+                    <Button
+                      key={p}
+                      variant={p === currentCommentPage ? "default" : "outline"}
+                      size="icon"
+                      asChild
+                      className="w-9 h-9"
+                    >
+                      <Link href={`/posts/${id}?cpage=${p}`}>{p}</Link>
+                    </Button>
+                  ));
+                })()}
+
+                <Button
+                  variant="outline"
+                  size="icon"
+                  asChild
+                  disabled={currentCommentPage >= totalCommentPages}
+                  className={currentCommentPage >= totalCommentPages ? "pointer-events-none opacity-50" : ""}
+                >
+                  <Link href={`/posts/${id}?cpage=${currentCommentPage + 1}`}>
+                    <ChevronRight className="h-4 w-4" />
+                  </Link>
+                </Button>
+              </div>
+            )}
           </div>
         </section>
       </div>
