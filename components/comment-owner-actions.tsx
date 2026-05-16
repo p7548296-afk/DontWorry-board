@@ -3,6 +3,7 @@
 import { deleteComment, updateComment } from "@/app/posts/actions";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { Trash2 } from "lucide-react";
 import { useState, useTransition } from "react";
 
 interface CommentOwnerActionsProps {
@@ -120,11 +121,12 @@ export function CommentOwnerActions({
             <Button
               type="button"
               variant="destructive"
-              size="sm"
+              size="icon"
               disabled={isPending}
               onClick={handleDelete}
+              className="h-8 w-8"
             >
-              삭제
+              <Trash2 className="h-4 w-4" />
             </Button>
           </>
         )}

@@ -9,4 +9,7 @@ export interface Post {
   profiles?: {
     nickname: string;
   };
+  comments?: {
+    id: string;
+  }[];
 }

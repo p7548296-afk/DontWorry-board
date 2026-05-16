@@ -32,6 +32,9 @@ export default async function Home({
       *,
       profiles (
         nickname
+      ),
+      comments!left (
+        id
       )
     `,
       { count: "exact" },
