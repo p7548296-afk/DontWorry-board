@@ -66,7 +66,7 @@ export default async function PostDetailPage({
   } = await supabase.auth.getUser();
 
   const typedPost = post as unknown as Post;
-  const isPostOwner = user?.id === typedPost.author_id;
+  const isPostOwner = user?.id === typedPost.author_id;      
   const authorNickname = typedPost.profiles?.nickname || "Anonymous";
 
   return (
@@ -100,7 +100,7 @@ export default async function PostDetailPage({
                     {authorNickname}
                   </span>
                   <span className="mx-2 text-zinc-300 dark:text-zinc-700">•</span>
-                  <time dateTime={typedPost.created_at}>
+                  <time dateTime={typedPost.created_at}>     
                     {new Date(typedPost.created_at).toLocaleDateString("en-US", {
                       year: "numeric",
                       month: "long",
@@ -138,7 +138,7 @@ export default async function PostDetailPage({
         <section className="space-y-8">
           <div className="border-t border-zinc-200 dark:border-zinc-800 pt-8">
             <h2 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50 mb-8">
-              댓글 {totalCommentsCount}
+              조언 {totalCommentsCount}
             </h2>
 
             <div className="mb-12">
@@ -147,10 +147,10 @@ export default async function PostDetailPage({
               ) : (
                 <div className="bg-zinc-100 dark:bg-zinc-900 rounded-lg p-6 text-center border border-dashed border-zinc-300 dark:border-zinc-700">
                   <p className="text-zinc-600 dark:text-zinc-400 mb-4">
-                    댓글을 남기려면 로그인이 필요합니다.
+                    로그인하면 조언을 남길 수 있습니다.
                   </p>
                   <Button asChild variant="outline">
-                    <Link href="/login">로그인하기</Link>
+                    <Link href="/login">로그인하기</Link> 
                   </Button>
                 </div>
               )}
@@ -169,7 +169,7 @@ export default async function PostDetailPage({
                   className={currentCommentPage <= 1 ? "pointer-events-none opacity-50" : ""}
                 >
                   <Link href={`/posts/${id}?cpage=${currentCommentPage - 1}`}>
-                    <ChevronLeft className="h-4 w-4" />
+                    <ChevronLeft className="h-4 w-4" />      
                   </Link>
                 </Button>
 
@@ -201,7 +201,7 @@ export default async function PostDetailPage({
                   className={currentCommentPage >= totalCommentPages ? "pointer-events-none opacity-50" : ""}
                 >
                   <Link href={`/posts/${id}?cpage=${currentCommentPage + 1}`}>
-                    <ChevronRight className="h-4 w-4" />
+                    <ChevronRight className="h-4 w-4" />     
                   </Link>
                 </Button>
               </div>
