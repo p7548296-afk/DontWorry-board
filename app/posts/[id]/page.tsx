@@ -69,6 +69,13 @@ export default async function PostDetailPage({
   const isPostOwner = user?.id === typedPost.author_id;      
   const authorNickname = typedPost.profiles?.nickname || "Anonymous";
 
+  // Debugging log for deployment
+  if (isPostOwner) {
+    console.log("DEBUG: User is the owner of this post", user?.id);
+  } else {
+    console.log("DEBUG: User is NOT the owner", { userId: user?.id, authorId: typedPost.author_id });
+  }
+
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-black py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-3xl mx-auto">
