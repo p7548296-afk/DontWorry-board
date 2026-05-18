@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { useState, useTransition, useRef, useEffect } from "react";
 import { X, Image as ImageIcon, Loader2 } from "lucide-react";
-import { Lightbox } from "@/components/lightbox";
+import { PostImageGallery } from "@/components/post-image-gallery";
 
 interface PostOwnerEditorProps {
   postId: string;
@@ -301,24 +301,10 @@ export function PostOwnerEditor({
               </p>
             </div>
             {imageUrls && imageUrls.length > 0 && (
-              <div className="grid gap-6 mt-8">
-                {imageUrls.map((url, index) => (
-                  <Lightbox 
-                    key={index} 
-                    images={imageUrls} 
-                    startIndex={index} 
-                    alt={`${title} - image ${index + 1}`}
-                  >
-                    <div className="rounded-xl overflow-hidden border border-zinc-200 dark:border-zinc-800 shadow-sm bg-white dark:bg-zinc-950 cursor-zoom-in group transition-all hover:ring-2 hover:ring-primary/20">
-                      <img
-                        src={url}
-                        alt={`${title} - image ${index + 1}`}
-                        className="w-full h-auto object-cover max-h-[800px] transition-transform duration-500 group-hover:scale-[1.02]"
-                      />
-                    </div>
-                  </Lightbox>
-                ))}
-              </div>
+              <PostImageGallery 
+                images={imageUrls} 
+                alt={title} 
+              />
             )}
           </>
         )}

@@ -1,12 +1,14 @@
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Post } from "@/types/post";
 import { MessageCircle } from "lucide-react";
+import Image from "next/image";
 
 interface PostCardProps {
   post: Post;
+  priority?: boolean;
 }
 
-export function PostCard({ post }: PostCardProps) {
+export function PostCard({ post, priority = false }: PostCardProps) {
   const nickname = post.profiles?.nickname || "Anonymous";
   const date = new Date(post.created_at).toLocaleDateString();
   const thumbnail = post.image_urls && post.image_urls.length > 0 ? post.image_urls[0] : null;
@@ -15,11 +17,14 @@ export function PostCard({ post }: PostCardProps) {
   return (
     <Card className="flex flex-col sm:flex-row overflow-hidden hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-colors cursor-pointer group border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950">
       {thumbnail && (
-        <div className="w-full sm:w-48 aspect-video sm:aspect-square flex-shrink-0 overflow-hidden border-b sm:border-b-0 sm:border-r border-zinc-100 dark:border-zinc-800">
-          <img
+        <div className="w-full sm:w-48 aspect-video sm:aspect-square flex-shrink-0 relative overflow-hidden border-b sm:border-b-0 sm:border-r border-zinc-100 dark:border-zinc-800">
+          <Image
             src={thumbnail}
             alt={post.title}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+            fill
+            priority={priority}
+            sizes="(max-width: 640px) 100vw, 192px"
+            className="object-cover group-hover:scale-105 transition-transform duration-300"
           />
         </div>
       )}

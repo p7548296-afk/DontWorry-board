@@ -115,9 +115,9 @@ export default async function Home({
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-1">
             {typedPosts && typedPosts.length > 0 ? (
               <>
-                {typedPosts.map((post) => (
+                {typedPosts.map((post, index) => (
                   <Link key={post.id} href={`/posts/${post.id}`}>
-                    <PostCard post={post} />
+                    <PostCard post={post} priority={index < 4} />
                   </Link>
                 ))}
 

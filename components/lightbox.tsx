@@ -1,10 +1,9 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useId } from "react";
 import {
   Dialog,
   DialogContent,
-  DialogTrigger,
   DialogTitle,
   DialogHeader,
 } from "@/components/ui/dialog";
@@ -13,50 +12,56 @@ import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface LightboxProps {
-  src?: string;
-  images?: string[];
+  images: string[];
   startIndex?: number;
   alt: string;
-  children: React.ReactNode;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
 }
 
-export function Lightbox({ src, images = [], startIndex = 0, alt, children }: LightboxProps) {
-  const [isOpen, setIsOpen] = useState(false);
+export function Lightbox({ images = [], startIndex = 0, alt, open, onOpenChange }: LightboxProps) {
   const [currentIndex, setCurrentIndex] = useState(startIndex);
+  const [prevOpen, setPrevOpen] = useState(open);
+  const id = useId();
 
-  // Normalize images to always be an array
-  const allImages = images.length > 0 ? images : src ? [src] : [];
-  
+  // Adjust state based on props (standard React pattern to avoid useEffect for this)
+  if (open !== prevOpen) {
+    setPrevOpen(open);
+    if (open) {
+      setCurrentIndex(startIndex);
+    }
+  }
+
   const handleNext = useCallback((e?: React.MouseEvent) => {
     e?.stopPropagation();
-    if (allImages.length <= 1) return;
-    setCurrentIndex((prev) => (prev + 1) % allImages.length);
-  }, [allImages.length]);
+    if (images.length <= 1) return;
+    setCurrentIndex((prev) => (prev + 1) % images.length);
+  }, [images.length]);
 
   const handlePrev = useCallback((e?: React.MouseEvent) => {
     e?.stopPropagation();
-    if (allImages.length <= 1) return;
-    setCurrentIndex((prev) => (prev - 1 + allImages.length) % allImages.length);
-  }, [allImages.length]);
+    if (images.length <= 1) return;
+    setCurrentIndex((prev) => (prev - 1 + images.length) % images.length);
+  }, [images.length]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (!isOpen) return;
+      if (!open) return;
       if (e.key === "ArrowRight") handleNext();
       if (e.key === "ArrowLeft") handlePrev();
-      if (e.key === "Escape") setIsOpen(false);
+      if (e.key === "Escape") onOpenChange(false);
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isOpen, handleNext, handlePrev]);
+  }, [open, handleNext, handlePrev, onOpenChange]);
 
-  if (allImages.length === 0) return <>{children}</>;
+  if (images.length === 0) return null;
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>{children}</DialogTrigger>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent 
+        id={id}
         showCloseButton={false}
         className="max-w-none sm:max-w-none h-screen sm:h-screen w-screen p-0 gap-0 overflow-hidden bg-black/95 border-none shadow-none flex items-center justify-center z-[100]"
       >
@@ -68,20 +73,20 @@ export function Lightbox({ src, images = [], startIndex = 0, alt, children }: Li
         
         <div 
           className="relative w-full h-full flex items-center justify-center p-2 md:p-8 cursor-zoom-out"
-          onClick={() => setIsOpen(false)}
+          onClick={() => onOpenChange(false)}
         >
           {/* Close button */}
           <Button
             variant="ghost"
             size="icon"
             className="absolute top-4 right-4 text-white/70 hover:text-white hover:bg-white/10 z-[110] rounded-full h-10 w-10 md:h-12 md:w-12"
-            onClick={() => setIsOpen(false)}
+            onClick={() => onOpenChange(false)}
           >
             <X className="w-6 h-6 md:w-8 md:h-8" />
           </Button>
 
           {/* Navigation - Prev */}
-          {allImages.length > 1 && (
+          {images.length > 1 && (
             <Button
               variant="ghost"
               size="icon"
@@ -98,14 +103,14 @@ export function Lightbox({ src, images = [], startIndex = 0, alt, children }: Li
             onClick={(e) => e.stopPropagation()}
           >
             <img
-              src={allImages[currentIndex]}
+              src={images[currentIndex]}
               alt={`${alt} - ${currentIndex + 1}`}
               className="max-w-full max-h-full object-contain shadow-2xl transition-all duration-500 animate-in fade-in zoom-in-95 pointer-events-none select-none"
             />
           </div>
 
           {/* Navigation - Next */}
-          {allImages.length > 1 && (
+          {images.length > 1 && (
             <Button
               variant="ghost"
               size="icon"
@@ -117,7 +122,7 @@ export function Lightbox({ src, images = [], startIndex = 0, alt, children }: Li
           )}
 
           {/* Mobile Navigation Controls */}
-          {allImages.length > 1 && (
+          {images.length > 1 && (
             <div className="absolute bottom-10 left-0 right-0 flex items-center justify-center gap-8 md:hidden z-[110]">
               <Button
                 variant="ghost"
@@ -139,9 +144,9 @@ export function Lightbox({ src, images = [], startIndex = 0, alt, children }: Li
           )}
 
           {/* Index indicator */}
-          {allImages.length > 1 && (
+          {images.length > 1 && (
             <div className="absolute top-8 left-1/2 -translate-x-1/2 px-4 py-1.5 bg-white/10 backdrop-blur-md text-white text-sm font-semibold rounded-full border border-white/10 tracking-widest z-[110]">
-              {currentIndex + 1} <span className="text-white/40 mx-1">/</span> {allImages.length}
+              {currentIndex + 1} <span className="text-white/40 mx-1">/</span> {images.length}
             </div>
           )}
         </div>

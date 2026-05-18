@@ -8,7 +8,7 @@ import { CommentList } from "@/components/comment-list";
 import { CommentForm } from "@/components/comment-form";
 import { Comment } from "@/types/comment";
 import { PostOwnerEditor } from "@/components/post-owner-editor";
-import { Lightbox } from "@/components/lightbox";
+import { PostImageGallery } from "@/components/post-image-gallery";
 
 export default async function PostDetailPage({
   params,
@@ -21,49 +21,49 @@ export default async function PostDetailPage({
   const { cpage } = await searchParams;
   const supabase = await createClient();
 
-  // Fetch a single post by ID including nickname from profiles
-  const { data: post, error } = await supabase
-    .from("posts")
-    .select(`
-      *,
-      profiles (
-        nickname
-      )
-    `)
-    .eq("id", id)
-    .single();
+  const currentCommentPage = Math.max(1, parseInt(cpage || "1", 10) || 1);
+  const pageSize = 6;
+  const from = (currentCommentPage - 1) * pageSize;
+  const to = from + pageSize - 1;
+
+  // Parallel data fetching for post, comments, and user
+  const [postResponse, commentsResponse, userResponse] = await Promise.all([
+    supabase
+      .from("posts")
+      .select(`
+        *,
+        profiles (
+          nickname
+        )
+      `)
+      .eq("id", id)
+      .single(),
+    supabase
+      .from("comments")
+      .select(`
+        *,
+        profiles (
+          nickname
+        )
+      `, { count: "exact" })
+      .eq("post_id", id)
+      .order("created_at", { ascending: true })
+      .range(from, to),
+    supabase.auth.getUser()
+  ]);
+
+  const { data: post, error } = postResponse;
+  const { data: commentsData, count: commentsCount } = commentsResponse;
+  const { data: { user } } = userResponse;
 
   if (error || !post) {
     console.error("Error fetching post:", error);
     notFound();
   }
 
-  const currentCommentPage = Math.max(1, parseInt(cpage || "1", 10) || 1);
-  const pageSize = 6;
-  const from = (currentCommentPage - 1) * pageSize;
-  const to = from + pageSize - 1;
-
-  // Fetch comments for this post with pagination
-  const { data: commentsData, count: commentsCount } = await supabase
-    .from("comments")
-    .select(`
-      *,
-      profiles (
-        nickname
-      )
-    `, { count: "exact" })
-    .eq("post_id", id)
-    .order("created_at", { ascending: true })
-    .range(from, to);
-
   const comments = (commentsData || []) as unknown as Comment[];
   const totalCommentsCount = commentsCount || 0;
   const totalCommentPages = Math.ceil(totalCommentsCount / pageSize);
-
-  // Check authentication status
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
 
   const typedPost = post as unknown as Post;
   const isPostOwner = user?.id === typedPost.author_id;      
@@ -124,24 +124,10 @@ export default async function PostDetailPage({
               </div>
 
               {typedPost.image_urls && typedPost.image_urls.length > 0 && (
-                <div className="grid gap-6">
-                  {typedPost.image_urls.map((url, index) => (
-                    <Lightbox 
-                      key={index} 
-                      images={typedPost.image_urls || []} 
-                      startIndex={index} 
-                      alt={`${typedPost.title} - ${index + 1}`}
-                    >
-                      <div className="rounded-xl overflow-hidden border border-zinc-200 dark:border-zinc-800 shadow-sm bg-white dark:bg-zinc-950 cursor-zoom-in group transition-all hover:ring-2 hover:ring-primary/20">
-                        <img
-                          src={url}
-                          alt={`${typedPost.title} - ${index + 1}`}
-                          className="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-[1.02]"
-                        />
-                      </div>
-                    </Lightbox>
-                  ))}
-                </div>
+                <PostImageGallery 
+                  images={typedPost.image_urls} 
+                  alt={typedPost.title} 
+                />
               )}
             </>
           )}
