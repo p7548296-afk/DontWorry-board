@@ -1,71 +1,156 @@
-# Don't Worry Board
+# DontWorry-board
 
 고민을 나누고 따뜻한 조언을 주고받는 익명 고민 상담 게시판입니다.
 
-## 🔗 링크
+---
 
-- **배포 URL:** https://dont-worry-board.vercel.app
-- **GitHub:** https://github.com/p7548296-afk/DontWorry-board
+# 프로젝트 개요
 
-## 🚀 주요 기능
+- **프로젝트 목적:** 누구나 닉네임 기반으로 익명성을 유지하며 일상의 크고 작은 고민을 나눌 수 있는 커뮤니티 서비스
+- **주요 기능 설명:** 게시글/댓글 CRUD, 이미지 업로드, 검색, 페이지네이션
+- **어떤 문제를 해결하는지:** 익명으로 고민을 올리고 다른 사람들의 조언을 받을 수 있는 공간 제공
+- **프로젝트 진행 배경:** 처음에는 식사 메뉴 고민에 대한 답을 구하고 싶다는 생각에서 시작했고, 이를 확장하여 누구나 일상의 크고 작은 고민을 익명으로 나눌 수 있는 게시판으로 발전시켰습니다.
 
-### 1. 게시글 관리 (CRUD)
-- **고민 작성:** 제목, 본문 내용과 함께 이미지를 업로드하여 고민을 공유할 수 있습니다.
-- **다중 이미지 업로드:** 게시글당 최대 **5장**의 이미지를 첨부할 수 있습니다.
-- **이미지 관리:** 업로드 전 미리보기 및 개별 삭제가 가능하며, 수정 시 기존 이미지를 교체하거나 삭제할 수 있습니다.
-- **이미지 썸네일:** 목록 페이지에서 게시글의 첫 번째 이미지를 썸네일로 보여줍니다.
-- **이미지 라이트박스:** 상세 페이지에서 이미지를 클릭하면 원본 크기로 크게 볼 수 있는 모달 뷰어 기능을 제공합니다.
+---
 
-### 2. 댓글 기능
-- **조언 남기기:** 게시글에 자유롭게 의견이나 응원의 메시지를 남길 수 있습니다.
-- **실시간 소통:** 댓글 작성, 수정, 삭제 시 페이지가 즉시 갱신되어 원활한 소통을 지원합니다.
+# 기술 스택
 
-### 3. 사용자 인증
-- **회원가입/로그인:** Supabase Auth를 이용한 안전한 이메일 기반 인증을 지원합니다.
-- **공개 프로필:** 사용자는 고유한 닉네임을 설정하여 활동합니다.
-- **권한 관리:** 본인이 작성한 게시글과 댓글만 수정 및 삭제가 가능하도록 RLS(Row Level Security) 보안 정책이 적용되어 있습니다.
+## Frontend
 
-## 🛠 기술 스택
+- Next.js 16 (App Router)
+- TypeScript
+- TailwindCSS
+- ShadCN UI
 
-- **Framework:** Next.js 16 (App Router)
-- **Database & Auth:** Supabase (PostgreSQL, Auth, Storage)
-- **Styling:** Tailwind CSS, ShadCN UI, Lucide React
-- **Language:** TypeScript
-- **State Management:** React Server Actions, `useTransition`
+## Backend
 
-## ⚙️ 이미지 처리 상세
+- Supabase (PostgreSQL, Auth, Storage, RLS)
 
-- **허용 형식:** JPG, PNG, WEBP
-- **용량 제한:** 파일당 최대 **5MB**
-- **저장소:** Supabase Storage (`post-images` 버킷)
-- **자동 정리:** 게시글 삭제 시 해당 게시글과 연관된 모든 이미지 파일이 스토리지에서 자동으로 삭제됩니다.
+## AI Agent
 
-## 📦 시작하기
+- Gemini CLI
 
-1. **저장소 클론:**
-```bash
-   git clone https://github.com/p7548296-afk/DontWorry-board.git
-   cd DontWorry-board
-```
+---
 
-2. **의존성 설치:**
-```bash
-   npm install
-```
+# 주요 기능
 
-3. **환경 변수 설정:**
-   `.env.local` 파일을 생성하고 Supabase 프로젝트 정보를 입력합니다.
-```env
-   NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
-   NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
-```
+- 이메일 기반 회원가입 / 로그인 / 로그아웃 (닉네임 중심 식별)
+- 게시글 작성 / 수정 / 삭제 / 상세 조회 (이미지 최대 5장 첨부)
+- 댓글 작성 / 수정 / 삭제 / 조회
+- 게시글 목록 (이미지 썸네일 + 댓글 수 표시)
+- 게시글 검색 (제목/내용)
+- 게시글/댓글 페이지네이션
 
-4. **개발 서버 실행:**
-```bash
-   npm run dev
+---
+
+# 프로젝트 구조
+
+```text
+app/
+├── auth/actions.ts
+├── login/page.tsx
+├── signup/page.tsx
+├── posts/
+│   ├── [id]/page.tsx
+│   ├── actions.ts
+│   └── new/page.tsx
+└── page.tsx
+components/
+├── ui/
+├── lightbox.tsx
+├── post-card.tsx
+├── post-form.tsx
+├── post-owner-editor.tsx
+├── comment-form.tsx
+├── comment-list.tsx
+└── comment-owner-actions.tsx
+lib/
+└── supabase/
 ```
 
 ---
-본 프로젝트는 사용자의 고민을 소중히 여기며, 안전하고 쾌적한 커뮤니티 환경을 제공하기 위해 노력하고 있습니다.
 
-<!-- deploy-trigger: force-build-001 -->
+# 실행 방법
+
+## 1. 프로젝트 설치
+
+```bash
+git clone https://github.com/p7548296-afk/DontWorry-board.git
+cd DontWorry-board
+npm install
+```
+
+## 2. 환경변수 설정
+
+`.env.local`
+
+```env
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+```
+
+## 3. 실행
+
+```bash
+npm run dev
+```
+
+---
+
+# Supabase 설정
+
+- **Authentication:** 이메일/비밀번호 기반 인증 사용
+- **사용한 테이블:**
+
+| 테이블 | 컬럼 |
+|--------|------|
+| `profiles` | id, nickname, updated_at |
+| `posts` | id, author_id, title, content, image_urls, created_at, updated_at |
+| `comments` | id, post_id, author_id, content, created_at |
+
+- **RLS 정책:** SELECT는 전체 공개, INSERT/UPDATE/DELETE는 본인만 가능
+- **Storage:** `post-images` 버킷 사용 (게시글당 최대 5장, 파일당 최대 5MB)
+
+---
+
+# AI 에이전트 활용 방식
+
+- **사용한 도구:** Gemini CLI
+- **어떤 작업에 활용했는지:** 프로젝트 초기 세팅, 컴포넌트 생성, 기능 구현, 버그 수정, 문서 정리
+- **문서 기반 작업 방식:** docs 폴더에 도메인별 규칙 문서(CONSTITUTION, STATUTE)를 작성하고 Gemini CLI가 이를 참고하여 일관된 코드를 생성
+- **프롬프트 전략:** 구현할 기능과 참고할 문서 경로를 함께 명시하여 프로젝트 컨텍스트를 유지
+- **코드 검증 방식:** 생성된 코드를 로컬에서 직접 실행하여 동작 확인 후 배포
+
+---
+
+# 트러블 슈팅
+
+## 문제 상황
+
+Vercel 배포 시 Turbopack이 한글 경로(`부트캠프`)를 처리하지 못해 빌드 실패
+
+## 원인
+
+프로젝트 경로에 한글이 포함되어 있어 Turbopack 내부에서 문자 인코딩 오류 발생
+
+## 해결 방법
+
+프로젝트 폴더를 한글 없는 경로(`bootcamp`)로 이동 후 git을 새로 초기화하여 루트 경로에서 push
+
+---
+
+# 회고
+
+- **어려웠던 점:** Vercel 배포 과정에서 한글 경로로 인한 Turbopack 빌드 오류 해결
+- **개선하고 싶은 점:** 마이페이지, 이용규칙 공지 등 고도화 기능 추가
+- **새롭게 배운 점:** Next.js App Router의 Server Component / Server Action 패턴, Supabase RLS 설정
+- **AI 에이전트를 사용하며 느낀 점:** 문서 기반으로 컨텍스트를 유지하면 AI가 일관된 코드를 생성할 수 있음
+
+---
+
+# 참고 자료
+
+- [Next.js 공식 문서](https://nextjs.org/docs)
+- [Supabase 공식 문서](https://supabase.com/docs)
+- [ShadCN UI 공식 문서](https://ui.shadcn.com)
+- [Tailwind CSS 공식 문서](https://tailwindcss.com/docs)
