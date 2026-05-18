@@ -126,7 +126,12 @@ export default async function PostDetailPage({
               {typedPost.image_urls && typedPost.image_urls.length > 0 && (
                 <div className="grid gap-6">
                   {typedPost.image_urls.map((url, index) => (
-                    <Lightbox key={index} src={url} alt={`${typedPost.title} - ${index + 1}`}>
+                    <Lightbox 
+                      key={index} 
+                      images={typedPost.image_urls || []} 
+                      startIndex={index} 
+                      alt={`${typedPost.title} - ${index + 1}`}
+                    >
                       <div className="rounded-xl overflow-hidden border border-zinc-200 dark:border-zinc-800 shadow-sm bg-white dark:bg-zinc-950 cursor-zoom-in group transition-all hover:ring-2 hover:ring-primary/20">
                         <img
                           src={url}

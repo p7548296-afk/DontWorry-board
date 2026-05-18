@@ -303,7 +303,12 @@ export function PostOwnerEditor({
             {imageUrls && imageUrls.length > 0 && (
               <div className="grid gap-6 mt-8">
                 {imageUrls.map((url, index) => (
-                  <Lightbox key={index} src={url} alt={`${title} - image ${index + 1}`}>
+                  <Lightbox 
+                    key={index} 
+                    images={imageUrls} 
+                    startIndex={index} 
+                    alt={`${title} - image ${index + 1}`}
+                  >
                     <div className="rounded-xl overflow-hidden border border-zinc-200 dark:border-zinc-800 shadow-sm bg-white dark:bg-zinc-950 cursor-zoom-in group transition-all hover:ring-2 hover:ring-primary/20">
                       <img
                         src={url}
