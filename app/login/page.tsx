@@ -47,7 +47,7 @@ export default function LoginPage() {
                 required
               />
             </div>
-            <div className="space-y-2">
+            <div className="space-y-2 mb-4">
               <Label htmlFor="password">Password</Label>
               <Input
                 id="password"
@@ -55,8 +55,7 @@ export default function LoginPage() {
                 type="password"
                 required
               />
-            </div>
-            {error && (
+            </div>            {error && (
               <p className="text-sm font-medium text-destructive">{error}</p>
             )}
           </CardContent>
