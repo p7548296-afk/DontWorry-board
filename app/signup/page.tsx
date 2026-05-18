@@ -18,9 +18,18 @@ import { useState } from "react";
 export default function SignupPage() {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+
+  const isPasswordEmpty = password === "";
+  const isConfirmEmpty = confirmPassword === "";
+  const isMatched = password === confirmPassword && !isConfirmEmpty;
+  const showMatchError = !isConfirmEmpty && !isMatched;
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (!isMatched) return;
+
     setIsLoading(true);
     setError(null);
 
@@ -67,14 +76,45 @@ export default function SignupPage() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
-              <Input id="password" name="password" type="password" required />
+              <Input
+                id="password"
+                name="password"
+                type="password"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            </div>
+            <div className="space-y-2 mb-4">
+              <Label htmlFor="confirmPassword">Confirm Password</Label>
+              <Input
+                id="confirmPassword"
+                name="confirmPassword"
+                type="password"
+                required
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+              />
+              {!isConfirmEmpty && (
+                <p
+                  className={`text-xs font-medium ${
+                    isMatched ? "text-green-600" : "text-red-600"
+                  }`}
+                >
+                  {isMatched ? "✓ Passwords match" : "✗ Passwords do not match"}
+                </p>
+              )}
             </div>
             {error && (
               <p className="text-sm font-medium text-destructive">{error}</p>
             )}
           </CardContent>
           <CardFooter className="flex flex-col space-y-4">
-            <Button type="submit" className="w-full" disabled={isLoading}>
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={isLoading || !isMatched}
+            >
               {isLoading ? "Signing up..." : "Sign Up"}
             </Button>
             <div className="text-sm text-center">
