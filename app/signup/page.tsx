@@ -12,6 +12,13 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import Link from "next/link";
 import { useState } from "react";
 
@@ -21,10 +28,26 @@ export default function SignupPage() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
-  const isPasswordEmpty = password === "";
+  const [emailId, setEmailId] = useState("");
+  const [selectedDomain, setSelectedDomain] = useState("gmail.com");
+  const [customDomain, setCustomDomain] = useState("");
+  const [isCustom, setIsCustom] = useState(false);
+
+  const domain = isCustom ? customDomain : selectedDomain;
+  const fullEmail = emailId && domain ? `${emailId}@${domain}` : "";
+
+  const handleDomainChange = (value: string) => {
+    if (value === "custom") {
+      setIsCustom(true);
+      setSelectedDomain("");
+    } else {
+      setIsCustom(false);
+      setSelectedDomain(value);
+    }
+  };
+
   const isConfirmEmpty = confirmPassword === "";
   const isMatched = password === confirmPassword && !isConfirmEmpty;
-  const showMatchError = !isConfirmEmpty && !isMatched;
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -48,7 +71,8 @@ export default function SignupPage() {
         <CardHeader>
           <CardTitle>Sign Up</CardTitle>
           <CardDescription>
-            Welcome to the Don&apos;t Worry Board. Join us to share your thoughts.
+            Welcome to the Don&apos;t Worry Board. Join us to share your
+            thoughts.
           </CardDescription>
         </CardHeader>
         <form onSubmit={handleSubmit}>
@@ -65,14 +89,51 @@ export default function SignupPage() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                name="email"
-                type="email"
-                placeholder="example@email.com"
-                required
-              />
+              <Label htmlFor="email-id">Email</Label>
+              <div className="flex items-center space-x-2">
+                <Input
+                  id="email-id"
+                  placeholder="ID"
+                  value={emailId}
+                  onChange={(e) => setEmailId(e.target.value)}
+                  required
+                  className="flex-1"
+                />
+                <span className="text-gray-500">@</span>
+                <Select
+                  onValueChange={handleDomainChange}
+                  defaultValue="gmail.com"
+                >
+                  <SelectTrigger className="w-[140px] px-4">
+                    <SelectValue placeholder="Select domain" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="gmail.com">gmail.com</SelectItem>
+                    <SelectItem value="naver.com">naver.com</SelectItem>
+                    <SelectItem value="kakao.com">kakao.com</SelectItem>
+                    <SelectItem value="daum.net">daum.net</SelectItem>
+                    <SelectItem value="nate.com">nate.com</SelectItem>
+                    <SelectItem value="hanmail.net">hanmail.net</SelectItem>
+                    <SelectItem value="outlook.com">outlook.com</SelectItem>
+                    <SelectItem value="custom">직접 입력</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              {isCustom && (
+                <Input
+                  placeholder="Enter custom domain"
+                  value={customDomain}
+                  onChange={(e) => setCustomDomain(e.target.value)}
+                  required
+                  className="mt-2"
+                />
+              )}
+              {fullEmail && (
+                <p className="text-xs text-gray-400 mt-1">
+                  Preview: {fullEmail}
+                </p>
+              )}
+              <input type="hidden" name="email" value={fullEmail} />
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
