@@ -102,11 +102,11 @@ npm run dev
 - **Authentication:** 이메일/비밀번호 기반 인증 사용
 - **사용한 테이블:**
 
-| 테이블 | 컬럼 |
-|--------|------|
-| `profiles` | id, nickname, updated_at |
-| `posts` | id, author_id, title, content, image_urls, created_at, updated_at |
-| `comments` | id, post_id, author_id, content, created_at |
+| 테이블     | 컬럼                                                              |
+| ---------- | ----------------------------------------------------------------- |
+| `profiles` | id, nickname, updated_at                                          |
+| `posts`    | id, author_id, title, content, image_urls, created_at, updated_at |
+| `comments` | id, post_id, author_id, content, created_at                       |
 
 - **RLS 정책:** SELECT는 전체 공개, INSERT/UPDATE/DELETE는 본인만 가능
 - **Storage:** `post-images` 버킷 사용 (게시글당 최대 5장, 파일당 최대 5MB)
