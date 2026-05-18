@@ -46,12 +46,32 @@ export default function SignupPage() {
     }
   };
 
+  const passwordRequirements = [
+    { label: "최소 8자 이상", met: password.length >= 8 },
+    { label: "대문자 포함", met: /[A-Z]/.test(password) },
+    { label: "소문자 포함", met: /[a-z]/.test(password) },
+    { label: "숫자 포함", met: /[0-9]/.test(password) },
+    { label: "특수문자 포함", met: /[!@#$%^&*(),.?":{}|<>]/.test(password) },
+  ];
+
+  const metCount = passwordRequirements.filter((req) => req.met).length;
+  const isPasswordValid = metCount === passwordRequirements.length;
+
+  const strengthLabels = ["매우 약함", "약함", "보통", "강함", "매우 강함"];
+  const strengthColors = [
+    "bg-red-500",
+    "bg-orange-500",
+    "bg-yellow-500",
+    "bg-blue-500",
+    "bg-green-500",
+  ];
+
   const isConfirmEmpty = confirmPassword === "";
   const isMatched = password === confirmPassword && !isConfirmEmpty;
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!isMatched) return;
+    if (!isMatched || !isPasswordValid) return;
 
     setIsLoading(true);
     setError(null);
@@ -145,6 +165,38 @@ export default function SignupPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
+              <div className="space-y-2 mt-2">
+                <div className="flex gap-1 h-1.5 w-full">
+                  {[0, 1, 2, 3, 4].map((i) => (
+                    <div
+                      key={i}
+                      className={`h-full flex-1 rounded-full transition-colors ${
+                        i < metCount
+                          ? strengthColors[metCount - 1]
+                          : "bg-gray-200"
+                      }`}
+                    />
+                  ))}
+                </div>
+                {password && (
+                  <p className="text-[10px] text-gray-500 text-right font-medium">
+                    강도: {strengthLabels[metCount - 1] || "매우 약함"}
+                  </p>
+                )}
+                <ul className="grid grid-cols-2 gap-x-4 gap-y-1">
+                  {passwordRequirements.map((req, i) => (
+                    <li
+                      key={i}
+                      className={`text-[11px] flex items-center gap-1.5 transition-colors ${
+                        req.met ? "text-green-600" : "text-gray-400"
+                      }`}
+                    >
+                      <span className="font-bold">{req.met ? "✓" : "✗"}</span>
+                      {req.label}
+                    </li>
+                  ))}
+                </ul>
+              </div>
             </div>
             <div className="space-y-2 mb-4">
               <Label htmlFor="confirmPassword">Confirm Password</Label>
@@ -174,7 +226,7 @@ export default function SignupPage() {
             <Button
               type="submit"
               className="w-full"
-              disabled={isLoading || !isMatched}
+              disabled={isLoading || !isMatched || !isPasswordValid}
             >
               {isLoading ? "Signing up..." : "Sign Up"}
             </Button>
