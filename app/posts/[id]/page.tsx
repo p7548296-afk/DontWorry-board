@@ -79,14 +79,14 @@ export default async function PostDetailPage({
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-black py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-3xl mx-auto">
-        <Button variant="ghost" asChild className="mb-8 -ml-4 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-900">
+        <Button variant="ghost" asChild className="mb-8 -ml-4 text-zinc-500 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-colors">
           <Link href="/">
             <ChevronLeft className="mr-2 h-4 w-4" />
-            Back to List
+            <span className="font-medium">목록으로 돌아가기</span>
           </Link>
         </Button>
 
-        <article className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-8 shadow-sm mb-8">
+        <article className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-8 sm:p-10 shadow-sm mb-12">
           {isPostOwner ? (
             <PostOwnerEditor
               postId={typedPost.id}
@@ -98,46 +98,55 @@ export default async function PostDetailPage({
             />
           ) : (
             <>
-              <header className="mb-8 border-b border-zinc-100 dark:border-zinc-800 pb-8">
-                <h1 className="text-4xl font-bold text-zinc-900 dark:text-zinc-50 mb-4 tracking-tight">
+              <header className="mb-10 border-b border-zinc-100 dark:border-zinc-800 pb-10">
+                <h1 className="text-3xl sm:text-4xl font-extrabold text-zinc-900 dark:text-zinc-50 mb-6 tracking-tight leading-[1.2]">
                   {typedPost.title}
                 </h1>
-                <div className="flex items-center text-zinc-500 dark:text-zinc-400 text-sm">
-                  <span className="font-medium text-zinc-900 dark:text-zinc-50">
-                    {authorNickname}
-                  </span>
-                  <span className="mx-2 text-zinc-300 dark:text-zinc-700">•</span>
-                  <time dateTime={typedPost.created_at}>     
-                    {new Date(typedPost.created_at).toLocaleDateString("en-US", {
-                      year: "numeric",
-                      month: "long",
-                      day: "numeric",
-                    })}
-                  </time>
+                <div className="flex items-center text-sm">
+                  <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700">
+                    <span className="font-bold text-zinc-900 dark:text-zinc-50">
+                      {authorNickname}
+                    </span>
+                    <span className="w-1 h-1 rounded-full bg-zinc-300 dark:bg-zinc-600" />
+                    <time dateTime={typedPost.created_at} className="text-zinc-500 dark:text-zinc-400 font-medium">     
+                      {new Date(typedPost.created_at).toLocaleDateString("ko-KR", {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                      })}
+                    </time>
+                  </div>
                 </div>
               </header>
 
-              <div className="prose prose-zinc dark:prose-invert max-w-none mb-8">
-                <p className="whitespace-pre-wrap text-zinc-700 dark:text-zinc-300 leading-relaxed text-lg">
+              <div className="prose prose-zinc dark:prose-invert max-w-none mb-12">
+                <p className="whitespace-pre-wrap text-zinc-700 dark:text-zinc-300 leading-relaxed text-[17px] sm:text-lg">
                   {typedPost.content}
                 </p>
               </div>
 
               {typedPost.image_urls && typedPost.image_urls.length > 0 && (
-                <PostImageGallery 
-                  images={typedPost.image_urls} 
-                  alt={typedPost.title} 
-                />
+                <div className="pt-8 border-t border-zinc-50 dark:border-zinc-800/50">
+                  <PostImageGallery 
+                    images={typedPost.image_urls} 
+                    alt={typedPost.title} 
+                  />
+                </div>
               )}
             </>
           )}
         </article>
 
-        <section className="space-y-8">
-          <div className="border-t border-zinc-200 dark:border-zinc-800 pt-8">
-            <h2 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50 mb-8">
-              조언 {totalCommentsCount}
-            </h2>
+        <section className="space-y-10">
+          <div className="border-t-2 border-zinc-100 dark:border-zinc-800 pt-10">
+            <div className="flex items-center gap-3 mb-10">
+              <h2 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50 tracking-tight">
+                조언
+              </h2>
+              <span className="px-2.5 py-0.5 rounded-full bg-primary/10 text-primary text-sm font-bold">
+                {totalCommentsCount}
+              </span>
+            </div>
 
             <div className="mb-12">
               {user ? (
